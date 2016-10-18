@@ -1,0 +1,6 @@
+install.packages("xlsx")
+getwd
+getwd()
+setwd("Coursera/Cleaning Data/Wk1")
+dat <- read.xlsx("NGAPv2.xlsx",sheetIndex=1,colIndex=7:15,rowIndex=18:23)
+xlsx
