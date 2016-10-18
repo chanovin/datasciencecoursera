@@ -1,42 +1,40 @@
-pollutantmean <- function(directory, pollutant, id = 1:332) {
-      ## 'directory' is a character vector of length 1 indicating
-      ## the location of the CSV files
-      
-      ## 'pollutant' is a character vector of length 1 indicating
-      ## the name of the pollutant for which we will calculate the
-      ## mean; either "sulfate" or "nitrate".
-      
-      ## 'id' is an integer vector indicating the monitor ID numbers
-      ## to be used
-      
-      # vector containing all values of the desired pollutant
-      despoll <- NULL
-      
-      # for each id passed
-      for(i in id){ 
-            # convert id to 3 digit width
-            idstr <- sprintf("%03d", i)
-            # identify file reqd
-            fileloc <- paste(getwd(),"/",directory, "/", idstr, ".csv",sep="") 
-            # read the file in
-            monitordata <- read.csv(fileloc)
-            
-            # for each entry in the file
-            for (j in 1:nrow(monitordata)){
-                  # pull the pollutant desired
-                  newpoll <- monitordata[j,pollutant]
-                  # if it isn't NA for this entry
-                  if(!is.na(newpoll)){
-                        # append it onto the pollutant vector
-                        despoll <- append(despoll,newpoll)
-                  }
-            }       
-      }
-      
-      ## Return the mean of the pollutant across all monitors list
-      ## in the 'id' vector (ignoring NA values)
-      ## NOTE: Do not round the result!
-      
-      mean(despoll)
+pollutantmean <- function(directory, pollutant, id=1:332){
+  ## directory is a char vector w/ length 1 indicating location
+  ## of CSV files
+  
+  ## pollutant is a char vector w/ length 1 indicating either
+  ## sulfate or nitrate
+  
+  ## id is an integer vector indicating the monitor ID(s) to be used
+  
+  ## return the mean of the pollutant across all monitors listed
+  ## in 'id' vector, ignoring NA values
+  ## DO NOT ROUND
+  
+  ## initialize a vector of means and observations for each monitor
+  monitorData <- data.frame(monAvg=NA, monObs=NA)
+  
+  ## initialize an index variable, j
+  j <- 1
+  
+  ## for each id (monitor) in the vector
+  for (i in id){
+    ## read the csv located at directory/id.csv
+    ## note that IDs are padded to three characters
+    thisMonitor <- read.csv(paste(directory,"/",sprintf("%03d",i),".csv",sep=''))
+    ## set the corresponding index of monitorMeans to the current monitor's
+    ## mean value for the desired pollutant, removing NAs
+    monitorData[j,"monAvg"] <- mean(thisMonitor[,pollutant],na.rm=TRUE)
+    ## count the number of non-NA observations for the current monitor's
+    ## desired pollutant
+    monitorData[j,"monObs"] <- sum(!is.na(thisMonitor[,pollutant]))
+    
+    ##increment j before looping
+    j <- j+1
+  }
+  
+  ## when the vector contains means and counts for all monitors of interest
+  ## calculate the overall mean
+  ## avoid NAs when calculating
+  sum(monitorData$monAvg * monitorData$monObs, na.rm=TRUE) / sum(monitorData$monObs)
 }
-

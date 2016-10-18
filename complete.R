@@ -13,33 +13,24 @@ complete <- function(directory, id = 1:332) {
       ## where 'id' is the monitor ID number and 'nobs' is the
       ## number of complete cases
       
-      noblst <- data.frame(id=integer(), nobs=integer())
-      
-      # for each id passed
-      for(i in id){ 
-            # convert id to 3 digit width
-            idstr <- sprintf("%03d", i)
-            # identify file reqd
-            fileloc <- paste(getwd(),"/",directory, "/", idstr, ".csv",sep="") 
-            # read the file in
-            mondat <- read.csv(fileloc)
-            
-            # set monitor id
-            noblst[nrow(noblst)+1,1] <- i
-            # set nobs to 0
-            monnobs <- 0
-            
-            # for each entry in the file
-            for (j in 1:nrow(mondat)){
-                  # check if all three rows are true
-                  if(!any(is.na(mondat[j,]))){
-                        # if true, increment nobs for this monitor id
-                        monnobs <- monnobs+1
-                  }
-            }
-            # set nobs in noblst for this monitor
-            noblst[nrow(noblst),2] <- monnobs
-      }
-      # print nob list
-      noblst
+    ## initialize a list
+    nobslist <- data.frame(id=NA, nobs=NA)
+    ## initialize an index counter
+    j <- 1
+    
+    
+    ## for each monitor
+    for(i in id){
+      ## read in the monitor csv file
+      thisMonitor <- read.csv(paste(directory,"/",sprintf("%03d",i),".csv",sep=''))
+      ## copy the id number to the nobslist
+      nobslist[j,] <- i
+      ## count the number of complete cases and place it in the nobs column
+      nobslist[j,"nobs"] <- sum(complete.cases(thisMonitor))
+      ## increment j
+      j <- j+1
+    }
+  
+    ## print outcome
+    nobslist
 }
